@@ -22,8 +22,10 @@ app.use("/api", userRouter);
 app.use("/api", messageRouter);
 app.use(errorHandler);
 
+const PORT = process.env.PORT || 3000
+
 connectDb().then(() => {
-  server.listen(process.env.PORT, () => {
+  server.listen(PORT, "0.0.0.0", () => {
     console.log(`server is running on PORT ${process.env.PORT}`);
   });
 });
