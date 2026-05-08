@@ -143,7 +143,7 @@ export const postLogin = [
         maxAge: 1000 * 60 * 60 * 24 * 2,
         httpOnly: true,
         secure: true,
-        sameSite: "Lax",
+        sameSite: "none",
       })
       .json({
         message: "Login Successfull",
