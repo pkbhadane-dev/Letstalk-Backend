@@ -14,7 +14,7 @@ export const isAuthenticated = (req, res, next) => {
     req.user = tokenData;
     next(); 
   } catch (error) {
-    console.error(error);
+    console.error(error.message);
     return next(
       new customErrorHandler("Authentication fail", "Invalid or expired token")
     );

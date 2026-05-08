@@ -13,7 +13,7 @@ export const sendMessage = async (req, res, next) => {
 
     if (!senderId || !receiverId || !message) {
       return next(
-        new customErrorHandler("send message fail", "all fields are required")
+        new customErrorHandler("send message fail", "all fields are required"),
       );
     }
 
@@ -55,7 +55,7 @@ export const sendMessage = async (req, res, next) => {
       conversation,
     });
   } catch (error) {
-    console.error(error);
+    console.error(error.message);
   }
 };
 
@@ -66,24 +66,9 @@ export const getMessage = async (req, res, next) => {
 
     if (!myId || !participantId) {
       return next(
-        new customErrorHandler("get message fail", "all fields are required")
+        new customErrorHandler("get message fail", "all fields are required"),
       );
     }
-
-    // // Fetch messages directly from Message collection for better performance
-    // // and to allow proper indexing / sorting instead of populating a potentially
-    // // very large conversation document.
-    // const messages = await Message.find({
-    //   $or: [
-    //     { senderId: myId, receiverId: participantId },
-    //     { senderId: participantId, receiverId: myId },
-    //   ],
-    // }).sort({ createdAt: 1 });
-
-    // res.status(200).json({
-    //   success: true,
-    //   responseData: { messages },
-    // });
 
     const getMessages = await Conversation.findOne({
       participants: { $all: [myId, participantId] },
@@ -94,7 +79,7 @@ export const getMessage = async (req, res, next) => {
       responseData: getMessages,
     });
   } catch (error) {
-    console.error(error);
+   console.error(error.message);
   }
 };
 
@@ -103,12 +88,12 @@ export const markAsRead = async (req, res) => {
     const myId = new ObjectId(req.user.userId);
     const participantId = new ObjectId(req.params.participantId);
 
-    if (!myId && !participantId) {
+    if (!myId || !participantId) {
       return next(
         new customErrorHandler(
           "update fail",
-          "myId and participantId not found"
-        )
+          "myId and participantId not found",
+        ),
       );
     }
 
@@ -118,14 +103,13 @@ export const markAsRead = async (req, res) => {
         receiverId: myId,
         isRead: false,
       },
-      { $set: { isRead: true } }
+      { $set: { isRead: true } },
     );
 
     const updatedCount = await Message.aggregate([
       { $match: { receiverId: myId, isRead: false } },
       { $group: { _id: "$senderId", count: { $sum: 1 } } },
     ]);
-    
 
     const socketId = getSocketId(myId);
     io.to(socketId).emit("unreadMsgCount", updatedCount);
@@ -136,7 +120,7 @@ export const markAsRead = async (req, res) => {
       responseData: updatedCount,
     });
   } catch (error) {
-    console.log(error);
+    console.error(error.message);
   }
 };
 
@@ -151,16 +135,35 @@ export const unreadMessageCount = async (req, res) => {
       { $group: { _id: "$senderId", count: { $sum: 1 } } },
     ]);
 
-    // const userId = getSocketId(req.user.userId);
-
-    // io.emit("unreadMsgCount", messageCount);
-
     res.status(200).json({
       success: true,
       responseData: messageCount,
     });
   } catch (error) {
-    console.log(error);
+    console.error(error.message);
     res.status(500).json({ success: false, message: "Internal server error" });
+  }
+};
+
+export const deleteMessage = async (req, res) => {
+  try {
+    const { messageId } = req.params;
+    const { userId } = req.user;
+
+    if (!messageId || !userId) {
+      return next(
+        new customErrorHandler("Delete fail", "userId and messageId not found"),
+      );
+    }
+
+    const response = await Message.findByIdAndDelete(messageId);
+
+    res.status(200).json({
+      success: true,
+      message: "message successfully deleted",
+      responseData: response,
+    });
+  } catch (error) {
+    console.error(error.message);
   }
 };

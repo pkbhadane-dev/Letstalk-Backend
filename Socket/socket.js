@@ -31,18 +31,11 @@ io.use((socket, next) => {
 io.on("connection", (socket) => {
 
   const userId = socket.userId;
-
-  console.log("onlineUser", userId);
-  
-
-  // onlineUser[userId] = socket.id;
+ 
   onlineUser.set(userId, socket.id);
 
   io.emit("onlineUser", Array.from(onlineUser.keys()));
-  // io.emit("onlineUser", Object.keys(onlineUser));
-
   socket.on("typing", ({ receiver, sender }) => {
-    // io.to(onlineUser[receiver]).emit("typing", sender);
     const receiverSocket = onlineUser.get(receiver);
     if (receiverSocket) {
       io.to(receiverSocket).emit("typing", userId);
@@ -57,15 +50,12 @@ io.on("connection", (socket) => {
   });
 
   socket.on("disconnect", () => {
-    // delete onlineUser[userId];
     onlineUser.delete(userId);
     io.emit("onlineUser", Array.from(onlineUser.keys()));
-    // io.emit("onlineUser", Object.keys(onlineUser));
   });
 });
 
 export const getSocketId = (userId) => {
-  // return onlineUser[userId];
   return onlineUser.get(userId);
 };
 export { app, server, io };

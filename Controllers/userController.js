@@ -66,7 +66,7 @@ export const postSignup = [
       const user = await User.findOne({ email });
       if (user) {
         return next(
-          new customErrorHandler("Signup fail", "User already exist")
+          new customErrorHandler("Signup fail", "User already exist"),
         );
       }
 
@@ -79,9 +79,9 @@ export const postSignup = [
         gender,
         password: hashedPassword,
       });
-
       await newUser.save();
-      console.log("user created");
+
+      const filterUser = await User.findById(newUser._id).select(-password);
 
       const token = jwtToken(newUser);
 
@@ -96,10 +96,10 @@ export const postSignup = [
         .json({
           status: 200,
           message: "user created successfully",
-          responseData: { newUser, token },
+          responseData: { filterUser, token },
         });
     } catch (error) {
-      console.error(error);
+      console.error(error.message);
       res.json({ error: error });
     }
   },
@@ -120,8 +120,8 @@ export const postLogin = [
       return next(
         new customErrorHandler(
           "Login fail",
-          "Please enter valid email and password"
-        )
+          "Please enter valid email and password",
+        ),
       );
     }
 
@@ -130,8 +130,8 @@ export const postLogin = [
       return next(
         new customErrorHandler(
           "Login fail",
-          "Please enter valid email and password"
-        )
+          "Please enter valid email and password",
+        ),
       );
     }
 
@@ -143,7 +143,7 @@ export const postLogin = [
         maxAge: 1000 * 60 * 60 * 24 * 2,
         httpOnly: true,
         secure: true,
-        sameSite:"Lax"
+        sameSite: "Lax",
       })
       .json({
         message: "Login Successfull",
@@ -163,13 +163,11 @@ export const getProfile = async (req, res, next) => {
       responseData: profile,
     });
   } catch (error) {
-    console.log(error);
+    console.error(error.message);
   }
 };
 
 export const postLogout = (req, res, next) => {
-  console.log("Req", req);
-
   try {
     return res
       .status(200)
@@ -179,18 +177,17 @@ export const postLogout = (req, res, next) => {
       })
       .json({
         message: "Logout successfull",
-        status: 200
+        status: 200,
       });
   } catch (error) {
-    console.log(error);
+    console.error(error.message);
   }
 };
 
 export const otherUsers = async (req, res, next) => {
   try {
     const myId = req.user.userId;
-    console.log("otherUsers");
-    
+
     const allUsers = await User.find({ _id: { $ne: myId } });
 
     res.status(200).json({
@@ -198,7 +195,7 @@ export const otherUsers = async (req, res, next) => {
       responseData: allUsers,
     });
   } catch (error) {
-    console.error(error);
+    console.error(error.message);
   }
 };
 
@@ -212,18 +209,17 @@ export const uploadProfilePic = async (req, res, next) => {
           (error, result) => {
             if (result) resolve(result);
             else reject(error);
-          }
+          },
         );
         streamifier.createReadStream(req.file.buffer).pipe(stream);
       });
     };
     const result = await streamUpload(req);
-    // console.log(result.secure_url);
 
     const user = await User.findByIdAndUpdate(
       myId,
       { profilePic: result.secure_url },
-      { new: true }
+      { new: true },
     );
 
     await user.save();
@@ -233,21 +229,20 @@ export const uploadProfilePic = async (req, res, next) => {
       responseData: user,
     });
   } catch (error) {
-    console.log("cloudinary", error);
+    console.error(error.message);
   }
 };
 
 export const setUserAbout = async (req, res, next) => {
   try {
     const myId = req.user.userId;
-    // console.log("req", req.body);
 
     const { about } = req.body;
 
     const user = await User.findByIdAndUpdate(
       myId,
       { about: about },
-      { new: true }
+      { new: true },
     );
     user.save();
 
@@ -256,6 +251,6 @@ export const setUserAbout = async (req, res, next) => {
       responseData: user.about,
     });
   } catch (error) {
-    console.log("updation fail");
+    console.error(error.message);
   }
 };
