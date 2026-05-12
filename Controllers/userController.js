@@ -113,43 +113,47 @@ export const postLogin = [
   validateResult,
 
   async (req, res, next) => {
-    const { email, password } = req.body;
+    try {
+      const { email, password } = req.body;
 
-    const user = await User.findOne({ email }).select("-password");
-    if (!user) {
-      return next(
-        new customErrorHandler(
-          "Login fail",
-          "Please enter valid email and password",
-        ),
-      );
+      const user = await User.findOne({ email }).select("-password");
+      if (!user) {
+        return next(
+          new customErrorHandler(
+            "Login fail",
+            "Please enter valid email and password",
+          ),
+        );
+      }
+
+      const isMatch = await bcrypt.compare(password, user.password);
+      if (!isMatch) {
+        return next(
+          new customErrorHandler(
+            "Login fail",
+            "Please enter valid email and password",
+          ),
+        );
+      }
+
+      const token = jwtToken(user);
+
+      res
+        .status(200)
+        .cookie("jwt", token, {
+          maxAge: 1000 * 60 * 60 * 24 * 2,
+          httpOnly: true,
+          secure: true,
+          sameSite: "none",
+          partitioned: true,
+        })
+        .json({
+          message: "Login Successfull",
+          responseData: { user, token },
+        });
+    } catch (error) {
+      console.error();
     }
-
-    const isMatch = await bcrypt.compare(password, user.password);
-    if (!isMatch) {
-      return next(
-        new customErrorHandler(
-          "Login fail",
-          "Please enter valid email and password",
-        ),
-      );
-    }
-
-    const token = jwtToken(user);
-
-    res
-      .status(200)
-      .cookie("jwt", token, {
-        maxAge: 1000 * 60 * 60 * 24 * 2,
-        httpOnly: true,
-        secure: true,
-        sameSite: "none",
-        partitioned: true
-      })
-      .json({
-        message: "Login Successfull",
-        responseData: { user, token },
-      });
   },
 ];
 
@@ -176,7 +180,7 @@ export const postLogout = (req, res, next) => {
         httpOnly: true,
         secure: true,
         sameSite: "none",
-        partitioned: true
+        partitioned: true,
       })
       .json({
         message: "Logout successfull",
@@ -184,6 +188,7 @@ export const postLogout = (req, res, next) => {
       });
   } catch (error) {
     console.error(error.message);
+    res.json({ error: error });
   }
 };
 
@@ -191,7 +196,9 @@ export const otherUsers = async (req, res, next) => {
   try {
     const myId = req.user.userId;
 
-    const allUsers = await User.find({ _id: { $ne: myId } }).select("-password");
+    const allUsers = await User.find({ _id: { $ne: myId } }).select(
+      "-password",
+    );
 
     res.status(200).json({
       success: true,
