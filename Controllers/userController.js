@@ -81,7 +81,7 @@ export const postSignup = [
       });
       await newUser.save();
 
-      const filterUser = await User.findById(newUser._id).select(-password);
+      const filterUser = await User.findById(newUser._id).select("-password");
 
       const token = jwtToken(newUser);
 
@@ -115,7 +115,7 @@ export const postLogin = [
   async (req, res, next) => {
     const { email, password } = req.body;
 
-    const user = await User.findOne({ email }).select(-password);
+    const user = await User.findOne({ email }).select("-password");
     if (!user) {
       return next(
         new customErrorHandler(
@@ -176,6 +176,7 @@ export const postLogout = (req, res, next) => {
         httpOnly: true,
         secure: true,
         sameSite: "none",
+        partitioned: true
       })
       .json({
         message: "Logout successfull",
@@ -190,7 +191,7 @@ export const otherUsers = async (req, res, next) => {
   try {
     const myId = req.user.userId;
 
-    const allUsers = await User.find({ _id: { $ne: myId } }).select(-password);
+    const allUsers = await User.find({ _id: { $ne: myId } }).select("-password");
 
     res.status(200).json({
       success: true,
