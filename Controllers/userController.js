@@ -115,7 +115,7 @@ export const postLogin = [
   async (req, res, next) => {
     const { email, password } = req.body;
 
-    const user = await User.findOne({ email });
+    const user = await User.findOne({ email }).select(-password);
     if (!user) {
       return next(
         new customErrorHandler(
@@ -190,7 +190,7 @@ export const otherUsers = async (req, res, next) => {
   try {
     const myId = req.user.userId;
 
-    const allUsers = await User.find({ _id: { $ne: myId } });
+    const allUsers = await User.find({ _id: { $ne: myId } }).select(-password);
 
     res.status(200).json({
       success: true,
