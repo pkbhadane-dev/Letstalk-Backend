@@ -7,6 +7,7 @@ import messageRouter from "./Routers/messageRouter.js";
 import { errorHandler } from "./Middlewares/errorHandler.js";
 import { connectDb } from "./DB/db.js";
 import { app, server } from "./Socket/socket.js";
+app.set("trust proxy", 1)
 
 app.use(
   cors({

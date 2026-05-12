@@ -144,6 +144,7 @@ export const postLogin = [
         httpOnly: true,
         secure: true,
         sameSite: "none",
+        partitioned: true
       })
       .json({
         message: "Login Successfull",
@@ -173,7 +174,8 @@ export const postLogout = (req, res, next) => {
       .status(200)
       .clearCookie("jwt", {
         httpOnly: true,
-        secure: process.env.NODE_ENV === "production",
+        secure: true,
+        sameSite: "none",
       })
       .json({
         message: "Logout successfull",
