@@ -9,9 +9,21 @@ import { connectDb } from "./DB/db.js";
 import { app, server } from "./Socket/socket.js";
 app.set("trust proxy", 1)
 
+const allowedOrigins = [
+  process.env.CLIENT_URL, // तुझी मुख्य साईट
+  "http://localhost:5173",          // लोकल डेव्हलपमेंट
+];
+
 app.use(
   cors({
-    origin: process.env.CLIENT_URL || "http://localhost:5173",
+    // origin: process.env.CLIENT_URL || "http://localhost:5173",
+    origin: function(origin, callback){
+      if (!origin || allowedOrigins.includes(origin) || origin.endsWith(".vercel.app")) {
+      callback(null, true);
+    } else {
+      callback(new Error('CORS blocked this origin'));
+    }
+    },
     credentials: true,
   }),
 );
