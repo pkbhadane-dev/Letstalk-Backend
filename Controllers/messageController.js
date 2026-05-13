@@ -56,6 +56,7 @@ export const sendMessage = async (req, res, next) => {
     });
   } catch (error) {
     console.error(error.message);
+    next(error);
   }
 };
 
@@ -79,7 +80,8 @@ export const getMessage = async (req, res, next) => {
       responseData: getMessages,
     });
   } catch (error) {
-   console.error(error.message);
+    console.error(error.message);
+    next(error);
   }
 };
 
@@ -121,6 +123,7 @@ export const markAsRead = async (req, res) => {
     });
   } catch (error) {
     console.error(error.message);
+    next(error);
   }
 };
 
@@ -141,7 +144,7 @@ export const unreadMessageCount = async (req, res) => {
     });
   } catch (error) {
     console.error(error.message);
-    res.status(500).json({ success: false, message: "Internal server error" });
+    next(error);
   }
 };
 
@@ -165,5 +168,6 @@ export const deleteMessage = async (req, res) => {
     });
   } catch (error) {
     console.error(error.message);
+    next(error);
   }
 };

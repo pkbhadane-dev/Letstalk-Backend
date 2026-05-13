@@ -100,7 +100,7 @@ export const postSignup = [
         });
     } catch (error) {
       console.error(error.message);
-      res.json({ error: error });
+      next(error);
     }
   },
 ];
@@ -116,7 +116,7 @@ export const postLogin = [
     try {
       const { email, password } = req.body;
 
-      const user = await User.findOne({ email }).select("-password");
+      const user = await User.findOne({ email });
       if (!user) {
         return next(
           new customErrorHandler(
@@ -136,6 +136,9 @@ export const postLogin = [
         );
       }
 
+      const userData = user.toObject();
+      delete userData.password;
+
       const token = jwtToken(user);
 
       res
@@ -149,10 +152,11 @@ export const postLogin = [
         })
         .json({
           message: "Login Successfull",
-          responseData: { user, token },
+          responseData: { user: userData, token },
         });
     } catch (error) {
-      console.error();
+      console.error(error);
+      next(error);
     }
   },
 ];
@@ -188,7 +192,7 @@ export const postLogout = (req, res, next) => {
       });
   } catch (error) {
     console.error(error.message);
-    res.json({ error: error });
+    next(error);
   }
 };
 
@@ -206,6 +210,7 @@ export const otherUsers = async (req, res, next) => {
     });
   } catch (error) {
     console.error(error.message);
+    next(error);
   }
 };
 
@@ -240,6 +245,7 @@ export const uploadProfilePic = async (req, res, next) => {
     });
   } catch (error) {
     console.error(error.message);
+    next(error);
   }
 };
 
@@ -262,5 +268,6 @@ export const setUserAbout = async (req, res, next) => {
     });
   } catch (error) {
     console.error(error.message);
+    next(error);
   }
 };
