@@ -81,7 +81,8 @@ export const postSignup = [
       });
       await newUser.save();
 
-      const filterUser = await User.findById(newUser._id).select("-password");
+      const filterUser = newUser.toObject();
+      delete filterUser.password;
 
       const token = jwtToken(newUser);
 
@@ -92,6 +93,7 @@ export const postSignup = [
           httpOnly: true,
           secure: true,
           sameSite: "none",
+          partitioned: true,
         })
         .json({
           status: 200,
