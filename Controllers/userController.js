@@ -187,6 +187,7 @@ export const postLogout = (req, res, next) => {
         secure: true,
         sameSite: "none",
         partitioned: true,
+        path: "/"
       })
       .json({
         message: "Logout successfull",
