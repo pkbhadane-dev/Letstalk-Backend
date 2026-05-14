@@ -88,6 +88,13 @@ export const postSignup = [
 
       res
         .status(200)
+        .clearCookie("jwt", {
+          httpOnly: true,
+          secure: true,
+          sameSite: "none",
+          partitioned: true,
+          path: "/",
+        })
         .cookie("jwt", token, {
           maxAge: 1000 * 60 * 60 * 24 * 2,
           httpOnly: true,
@@ -145,6 +152,13 @@ export const postLogin = [
 
       res
         .status(200)
+        .clearCookie("jwt", {
+          httpOnly: true,
+          secure: true,
+          sameSite: "none",
+          partitioned: true,
+          path: "/",
+        })
         .cookie("jwt", token, {
           maxAge: 1000 * 60 * 60 * 24 * 2,
           httpOnly: true,
