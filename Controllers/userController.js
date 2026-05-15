@@ -92,7 +92,6 @@ export const postSignup = [
           httpOnly: true,
           secure: true,
           sameSite: "none",
-          partitioned: true,
           path: "/",
         })
         .cookie("jwt", token, {
@@ -100,7 +99,7 @@ export const postSignup = [
           httpOnly: true,
           secure: true,
           sameSite: "none",
-          partitioned: true,
+          path: "/",
         })
         .json({
           status: 200,
@@ -156,7 +155,6 @@ export const postLogin = [
           httpOnly: true,
           secure: true,
           sameSite: "none",
-          partitioned: true,
           path: "/",
         })
         .cookie("jwt", token, {
@@ -164,7 +162,7 @@ export const postLogin = [
           httpOnly: true,
           secure: true,
           sameSite: "none",
-          partitioned: true,
+          path: "/",
         })
         .json({
           message: "Login Successfull",
@@ -200,8 +198,7 @@ export const postLogout = (req, res, next) => {
         httpOnly: true,
         secure: true,
         sameSite: "none",
-        partitioned: true,
-        path: "/"
+        path: "/",
       })
       .json({
         message: "Logout successfull",
