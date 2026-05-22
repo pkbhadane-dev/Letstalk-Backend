@@ -7,7 +7,6 @@ A real-time chat application backend built with **Node.js**, **Express**, and **
 - **User Authentication**: Sign up, login, and logout with JWT tokens
 - **Real-time Messaging**: Instant message delivery using Socket.io
 - **User Management**: Profile management with profile pictures and user descriptions
-- **Conversation Tracking**: Maintain conversation history between users
 - **Online Status**: Real-time online/offline user status
 - **Typing Indicator**: Live typing status notifications
 - **Message Status**: Track read/unread messages
