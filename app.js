@@ -10,8 +10,8 @@ import { app, server } from "./Socket/socket.js";
 app.set("trust proxy", 1)
 
 const allowedOrigins = [
-  process.env.CLIENT_URL, // तुझी मुख्य साईट
-  "http://localhost:5173",          // लोकल डेव्हलपमेंट
+  process.env.CLIENT_URL, 
+  "http://localhost:5173", 
 ];
 
 app.use(
